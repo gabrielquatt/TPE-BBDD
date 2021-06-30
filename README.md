@@ -4,6 +4,6 @@ _El Trabajo Práctico Especial consiste en la resolución de un conjunto de cont
 
 ## Autores ✒️
 
-- **Facundo Adian Arana** - _Desarrollador_ - [Facundo-Arana](https://github.com/Facundo-Arana)
-- **Soledad Merino** - _Desarroladora_ - [SoleMer](https://github.com/SoleMer)
+- **Facundo Adrian Arana** - _Desarrollador_ - [Facundo-Arana](https://github.com/Facundo-Arana)
+- **Soledad Merino** - _Desarrolladora_ - [SoleMer](https://github.com/SoleMer)
 - **Gabriel Matias Quattrini** - _Desarrollador_ [gabrielquatt](https://github.com/gabrielquatt)

@@ -223,3 +223,12 @@ FROM gr01_oficina o
 JOIN GR01_V_PROMEDIO v ON v.superficie = o.superficie;
 
 SELECT * FROM GR01_V_OFICINAS_REG;
+/*
+Se crea primero la vista GR01_V_PROMEDIO para poder obtener el promedio de escritos por superficie.
+No es posible hacer esta vista actualizable porque es necesario proyectar atributos de las dos tablas involucradas y
+utilizar funciones de agrupamiento.
+Luego se crea la tabla GR01_V_OFICINAS_REG, solicitada en el ejercicio, en la que se proyetan los atributos de la tabla
+gr01_oficina y se hace un join para traer los resultados de la vista GR01_V_PROMEDIO.
+La vista resultante no es actualizable, porque es necesario proyectar atributos de la tabla gr01_oficina y de la vista
+GR01_V_PROMEDIO que, a su vez y como vimos anteriormente, no es actualizable.
+*/

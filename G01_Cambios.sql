@@ -13,11 +13,98 @@
 -- mantener actualizadas las tablas de OFICINA, OFICINA_REG y SALA_CONVENSION de manera de respetar el diseño de
 -- datos de la jerarquía.
 
+--**************************************** CREACION DE VISTAS ***************************************************
+
+CREATE VIEW GR01_V_OFICINA_REGULAR AS
+    SELECT r.id_oficina, o.superficie,o.cant_max_personas, o.monto_alquiler,r.cant_escritorios, r.cant_pc
+    FROM GR01_OFICINA o NATURAL JOIN GR01_OFICINA_REG r;
+/*SELECT * FROM GR01_V_OFICINA_REGULAR;*/
+
+CREATE VIEW GR01_V_SALA_CONVENCION AS
+    SELECT s.id_oficina, o.superficie, o.cant_max_personas, o.monto_alquiler, s.cant_pantallas,s.cant_sillas
+    FROM GR01_OFICINA o NATURAL JOIN GR01_SALA_CONVENCION s;
+
+--************************************* CREACION DE TRIGGERS INSTEAD OF ******************************************
+
+CREATE OR REPLACE FUNCTION FN_GR01_V_OFICINA_REGULAR()
+RETURNS TRIGGER AS $$
+    BEGIN
+        IF (TG_OP = 'UPDATE') THEN
+            UPDATE GR01_OFICINA
+                SET superficie = NEW.superficie,cant_max_personas = NEW.cant_max_personas, monto_alquiler = NEW.monto_alquiler
+                WHERE id_oficina = NEW.id_oficina;
+            UPDATE GR01_OFICINA_REG
+                SET cant_escritorios = NEW.cant_escritorios, cant_pc = NEW.cant_pc
+                WHERE id_oficina = NEW.id_oficina;
+        ELSE
+            INSERT INTO GR01_OFICINA (ID_OFICINA, SUPERFICIE, CANT_MAX_PERSONAS, MONTO_ALQUILER, TIPO_O)
+                VALUES (NEW.id_oficina , NEW.superficie, NEW.cant_max_personas, NEW.monto_alquiler,'R');
+            INSERT INTO GR01_V_OFICINA_REGULAR (id_oficina,cant_escritorios,cant_pc)
+                VALUES (NEW.id_oficina,NEW.cant_escritorios,NEW.cant_pc);
+        END IF;
+        RETURN NULL;
+    END;
+    $$
+    LANGUAGE 'plpgsql';
+
+CREATE OR REPLACE FUNCTION FN_GR01_V_SALA_CONVENCION()
+RETURNS TRIGGER AS $$
+    BEGIN
+        IF (TG_OP = 'UPDATE') THEN
+            UPDATE GR01_OFICINA
+                SET superficie = NEW.superficie,cant_max_personas = NEW.cant_max_personas, monto_alquiler = NEW.monto_alquiler
+                WHERE id_oficina = NEW.id_oficina;
+            UPDATE GR01_V_SALA_CONVENCION
+                SET cant_sillas = NEW.cant_sillas, cant_pantallas = NEW.cant_pantallas
+                WHERE id_oficina = NEW.id_oficina;
+        end if;
+        IF (tg_op= 'INSERT') THEN
+            INSERT INTO GR01_OFICINA (id_oficina, superficie, cant_max_personas, monto_alquiler, tipo_o)
+                VALUES (NEW.id_oficina, new.superficie , new.cant_max_personas, new.monto_alquiler,'C');
+            INSERT INTO GR01_V_SALA_CONVENCION (id_oficina,cant_pantallas, cant_sillas)
+                VALUES (NEW.id_oficina, NEW.cant_pantallas,NEW.cant_sillas);
+            return null;
+
+        END IF;
+        RETURN NULL;
+    END;
+    $$
+    LANGUAGE 'plpgsql';
+
+CREATE TRIGGER TR_GR01_V_SALA_CONVENCION
+    INSTEAD OF INSERT OR UPDATE
+    ON GR01_V_SALA_CONVENCION
+    FOR EACH ROW
+    EXECUTE PROCEDURE FN_GR01_V_SALA_CONVENCION();
+
+CREATE TRIGGER TR_GR01_V_OFICINA_REGULAR
+    INSTEAD OF INSERT OR UPDATE
+    ON GR01_V_OFICINA_REGULAR
+    FOR EACH ROW
+    EXECUTE PROCEDURE FN_GR01_V_OFICINA_REGULAR();
+
+
+INSERT INTO gr01_v_oficina_regular (id_oficina,superficie,cant_max_personas,monto_alquiler,cant_escritorios,cant_pc)
+        VALUES (600,93,8,55.54,2,2);
+
 /**==================================================================================================================*/
 --                                              B.VISTAS
 /**==================================================================================================================*/
 
 --1.Construya una vista V_CLIENTES_COMP que contenga las oficinas que han sido alquiladas por todos los clientes.
+
+CREATE VIEW GR01_V_CLIENTE_COMP AS
+    SELECT *
+    FROM GR01_OFICINA AS of
+    WHERE NOT EXISTS(SELECT 1
+                     FROM GR01_CLIENTE AS cl
+                     WHERE NOT EXISTS(SELECT 1
+                                      FROM GR01_ALQUILA AS aq
+                                      WHERE aq.id_oficina = of.id_oficina
+                                      AND aq.nro_doc = cl.nro_doc
+                                      AND aq.tipo_doc = cl.tipo_doc));
+
+SELECT * FROM GR01_V_CLIENTE_COMP;
 
 --2. Construya una vista V_OFICINAS_REG que liste para cada oficina su identificador,
 --su tipo, su superficie, su monto de alquiler y la cantidad promedio de escritorios por superficie.

@@ -102,14 +102,174 @@ EXECUTE PROCEDURE TRFN_GR01_OFICINAS_CLIENTE();
 -- mantener actualizadas las tablas de OFICINA, OFICINA_REG y SALA_CONVENSION de manera de respetar el diseño de
 -- datos de la jerarquía.
 
+--**************************************** CREACION DE VISTAS ***************************************************
+
+CREATE VIEW GR01_V_OFICINA_REGULAR AS
+    SELECT r.id_oficina, o.superficie,o.cant_max_personas, o.monto_alquiler,r.cant_escritorios, r.cant_pc
+    FROM GR01_OFICINA o NATURAL JOIN GR01_OFICINA_REG r;
+/*SELECT * FROM GR01_V_OFICINA_REGULAR;*/
+
+CREATE VIEW GR01_V_SALA_CONVENCION AS
+    SELECT s.id_oficina, o.superficie, o.cant_max_personas, o.monto_alquiler, s.cant_pantallas,s.cant_sillas
+    FROM GR01_OFICINA o NATURAL JOIN GR01_SALA_CONVENCION s;
+
+--************************************* CREACION DE TRIGGERS INSTEAD OF ******************************************
+
+CREATE OR REPLACE FUNCTION FN_GR01_V_OFICINA_REGULAR()
+RETURNS TRIGGER AS $$
+    BEGIN
+        IF (TG_OP = 'UPDATE') THEN
+            UPDATE GR01_OFICINA
+                SET superficie = NEW.superficie,cant_max_personas = NEW.cant_max_personas, monto_alquiler = NEW.monto_alquiler
+                WHERE id_oficina = NEW.id_oficina;
+            UPDATE GR01_OFICINA_REG
+                SET cant_escritorios = NEW.cant_escritorios, cant_pc = NEW.cant_pc
+                WHERE id_oficina = NEW.id_oficina;
+        ELSE
+
+            INSERT INTO GR01_OFICINA (ID_OFICINA, SUPERFICIE, CANT_MAX_PERSONAS, MONTO_ALQUILER, TIPO_O)
+                VALUES (NEW.id_oficina , NEW.superficie, NEW.cant_max_personas, NEW.monto_alquiler,'R')
+                ;
+
+            INSERT INTO gr01_oficina_reg (id_oficina,cant_escritorios,cant_pc)
+                VALUES (NEW.id_oficina,NEW.cant_escritorios,NEW.cant_pc);
+        END IF;
+        RETURN NULL;
+    END;
+    $$
+    LANGUAGE 'plpgsql';
+
+CREATE OR REPLACE FUNCTION FN_GR01_V_SALA_CONVENCION()
+RETURNS TRIGGER AS $$
+    BEGIN
+        IF (TG_OP = 'UPDATE') THEN
+            UPDATE GR01_OFICINA
+                SET superficie = NEW.superficie,cant_max_personas = NEW.cant_max_personas, monto_alquiler = NEW.monto_alquiler
+                WHERE id_oficina = NEW.id_oficina;
+            UPDATE GR01_SALA_CONVENCION
+                SET cant_sillas = NEW.cant_sillas, cant_pantallas = NEW.cant_pantallas
+                WHERE id_oficina = NEW.id_oficina;
+        end if;
+        IF (tg_op= 'INSERT') THEN
+            INSERT INTO GR01_OFICINA (id_oficina, superficie, cant_max_personas, monto_alquiler, tipo_o)
+                VALUES (NEW.id_oficina, new.superficie , new.cant_max_personas, new.monto_alquiler,'C');
+            INSERT INTO GR01_SALA_CONVENCION (id_oficina,cant_pantallas, cant_sillas)
+                VALUES (NEW.id_oficina, NEW.cant_pantallas,NEW.cant_sillas);
+            return null;
+
+        END IF;
+        RETURN NULL;
+    END;
+    $$
+    LANGUAGE 'plpgsql';
+
+CREATE TRIGGER TR_GR01_V_SALA_CONVENCION
+    INSTEAD OF INSERT OR UPDATE
+    ON GR01_V_SALA_CONVENCION
+    FOR EACH ROW
+    EXECUTE PROCEDURE FN_GR01_V_SALA_CONVENCION();
+
+CREATE TRIGGER TR_GR01_V_OFICINA_REGULAR
+    INSTEAD OF INSERT OR UPDATE
+    ON GR01_V_OFICINA_REGULAR
+    FOR EACH ROW
+    EXECUTE PROCEDURE FN_GR01_V_OFICINA_REGULAR();
+
+select (*) from gr01_oficina_reg;
+INSERT INTO gr01_v_oficina_regular (id_oficina,superficie,cant_max_personas,monto_alquiler,cant_escritorios,cant_pc)
+        VALUES (600,93,8,55.54,2,2);
+
 /**==================================================================================================================*/
 --                                              B.VISTAS
 /**==================================================================================================================*/
 
 --1.Construya una vista V_CLIENTES_COMP que contenga las oficinas que han sido alquiladas por todos los clientes.
 
+CREATE VIEW GR01_V_CLIENTE_COMP AS
+    SELECT *
+    FROM GR01_OFICINA AS of
+    WHERE NOT EXISTS(SELECT 1
+                     FROM GR01_CLIENTE AS cl
+                     WHERE NOT EXISTS(SELECT 1
+                                      FROM GR01_ALQUILA AS aq
+                                      WHERE aq.id_oficina = of.id_oficina
+                                      AND aq.nro_doc = cl.nro_doc
+                                      AND aq.tipo_doc = cl.tipo_doc));
+
+SELECT * FROM GR01_V_CLIENTE_COMP;
+
 --2. Construya una vista V_OFICINAS_REG que liste para cada oficina su identificador,
 --su tipo, su superficie, su monto de alquiler y la cantidad promedio de escritorios por superficie.
+
+/*CREATE VIEW GR01_V_OFICINAS_REG AS
+    SELECT id_oficina, superficie, cant_max_personas, monto_alquiler, tipo_o, AVG(r.cant_escritorios)
+    FROM gr01_oficina o
+    JOIN gr01_oficina_reg r on o.id_oficina = r.id_oficina
+    WHERE id_oficina IN (SELECT id_oficina
+                        FROM gr01_oficina_reg r
+                        WHERE id_oficina IN (SELECT id_oficina
+                                            FROM gr01_oficina
+                                            GROUP BY superficie));
+
+CREATE VIEW GR01_V_OFICINAS_REG AS
+SELECT o.id_oficina,  monto_alquiler, tipo_o, superficie, cant_escritorios, AVG(cant_escritorios)
+FROM gr01_oficina o
+JOIN gr01_oficina_reg r on o.id_oficina = r.id_oficina
+WHERE o.superficie IN (SELECT o1.superficie
+                        FROM gr01_oficina o1
+                        GROUP BY o1.superficie)
+GROUP BY o.id_oficina, superficie, cant_max_personas, monto_alquiler, tipo_o, cant_escritorios;
+
+
+--ESTO ME TRAE EL PROMEDIO:
+SELECT superficie, AVG(cant_escritorios)
+FROM gr01_oficina o
+JOIN gr01_oficina_reg r ON r.id_oficina = o.id_oficina
+GROUP BY superficie;
+
+--SI AGREGO LOS OTROS CAMPOS LOS TENGO QUE INCLUIR E EL GROUP BY Y YA NO CALCULA EL PROMEDIO:
+SELECT o.id_oficina,  monto_alquiler, tipo_o, superficie, AVG(cant_escritorios)
+FROM gr01_oficina o
+JOIN gr01_oficina_reg r ON r.id_oficina = o.id_oficina
+GROUP BY superficie, o.id_oficina;
+
+SELECT id_oficina,  monto_alquiler, tipo_o, superficie, AVG(cant_escritorios)
+FROM gr01_oficina o
+JOIN gr01_oficina_reg r ON r.id_oficina = o.id_oficina
+JOIN gr01_oficina o1 ON o1.id_oficina = o.id_oficina
+WHERE r.superficie IN (SELECT o.superficie
+    FROM )
+GROUP BY superficie;
+
+SELECT id_oficina,  monto_alquiler, tipo_o, superficie, (SELECT AVG(r.cant_escritorios)
+                                                            FROM GR01_V_OFICINAS_REG r
+                                                            JOIN gr01_oficina o ON o.id_oficina = r.id_oficina
+                                                            GROUP BY o.superficie)
+FROM gr01_oficina;
+
+*/
+
+CREATE VIEW GR01_V_PROMEDIO AS
+SELECT superficie, AVG(cant_escritorios) as promedio
+FROM gr01_oficina o
+JOIN gr01_oficina_reg r ON r.id_oficina = o.id_oficina
+GROUP BY superficie;
+
+CREATE VIEW GR01_V_OFICINAS_REG AS
+    SELECT id_oficina,  monto_alquiler, tipo_o, v.superficie, v.promedio
+FROM gr01_oficina o
+JOIN GR01_V_PROMEDIO v ON v.superficie = o.superficie;
+
+SELECT * FROM GR01_V_OFICINAS_REG;
+/*
+Se crea primero la vista GR01_V_PROMEDIO para poder obtener el promedio de escritos por superficie.
+No es posible hacer esta vista actualizable porque es necesario proyectar atributos de las dos tablas involucradas y
+utilizar funciones de agrupamiento.
+Luego se crea la vista GR01_V_OFICINAS_REG, solicitada en el ejercicio, en la que se proyectan los atributos de la tabla
+gr01_oficina y se hace un join para traer los resultados de la vista GR01_V_PROMEDIO.
+La vista resultante no es actualizable, porque es necesario proyectar atributos de la tabla gr01_oficina y de la vista
+GR01_V_PROMEDIO que, a su vez y como vimos anteriormente, no es actualizable.
+*/
 
 /**==================================================================================================================*/
 --                                              INSERTS
@@ -138,37 +298,25 @@ INSERT INTO GR01_CLIENTE (tipo_doc, nro_doc, nombre, e_mail, apellido)
 VALUES ('DNI', 284498096, 'Dionisio', 'dmellsop9@blogger.com', 'Mellsop');
 
 --GR01_OFICINA
-INSERT INTO GR01_OFICINA (id_oficina, superficie, cant_max_personas, monto_alquiler, tipo_o)
-VALUES (1, 93, 8, 55.54, 'R');
-INSERT INTO GR01_OFICINA (id_oficina, superficie, cant_max_personas, monto_alquiler, tipo_o)
-VALUES (2, 47, 29, 58.14, 'R');
-INSERT INTO GR01_OFICINA (id_oficina, superficie, cant_max_personas, monto_alquiler, tipo_o)
-VALUES (3, 90, 1, 24.67, 'R');
-INSERT INTO GR01_OFICINA (id_oficina, superficie, cant_max_personas, monto_alquiler, tipo_o)
-VALUES (4, 57, 22, 59.83, 'R');
-INSERT INTO GR01_OFICINA (id_oficina, superficie, cant_max_personas, monto_alquiler, tipo_o)
-VALUES (5, 41, 32, 89.59, 'R');
-INSERT INTO GR01_OFICINA (id_oficina, superficie, cant_max_personas, monto_alquiler, tipo_o)
-VALUES (6, 80, 75, 94.94, 'C');
-INSERT INTO GR01_OFICINA (id_oficina, superficie, cant_max_personas, monto_alquiler, tipo_o)
-VALUES (7, 14, 49, 25.4, 'C');
-INSERT INTO GR01_OFICINA (id_oficina, superficie, cant_max_personas, monto_alquiler, tipo_o)
-VALUES (8, 45, 61, 88.64, 'C');
-INSERT INTO GR01_OFICINA (id_oficina, superficie, cant_max_personas, monto_alquiler, tipo_o)
-VALUES (9, 34, 50, 25.71, 'C');
-INSERT INTO GR01_OFICINA (id_oficina, superficie, cant_max_personas, monto_alquiler, tipo_o)
-VALUES (10, 25, 19, 35.21, 'C');
+INSERT INTO GR01_OFICINA (id_oficina, superficie, cant_max_personas, monto_alquiler, tipo_o) VALUES (1, 93, 8, 55.54, 'R');
+INSERT INTO GR01_OFICINA (id_oficina, superficie, cant_max_personas, monto_alquiler, tipo_o) VALUES (2, 47, 29, 58.14, 'R');
+INSERT INTO GR01_OFICINA (id_oficina, superficie, cant_max_personas, monto_alquiler, tipo_o) VALUES (3, 90, 1, 24.67, 'R');
+INSERT INTO GR01_OFICINA (id_oficina, superficie, cant_max_personas, monto_alquiler, tipo_o) VALUES (4, 57, 22, 59.83, 'R');
+INSERT INTO GR01_OFICINA (id_oficina, superficie, cant_max_personas, monto_alquiler, tipo_o) VALUES (5, 41, 32, 89.59, 'R');
+INSERT INTO GR01_OFICINA (id_oficina, superficie, cant_max_personas, monto_alquiler, tipo_o) VALUES (6, 80, 75, 94.94, 'C');
+INSERT INTO GR01_OFICINA (id_oficina, superficie, cant_max_personas, monto_alquiler, tipo_o) VALUES (7, 14, 49, 25.4, 'C');
+INSERT INTO GR01_OFICINA (id_oficina, superficie, cant_max_personas, monto_alquiler, tipo_o) VALUES (8, 45, 61, 88.64, 'C');
+INSERT INTO GR01_OFICINA (id_oficina, superficie, cant_max_personas, monto_alquiler, tipo_o) VALUES (9, 34, 50, 25.71, 'C');
+INSERT INTO GR01_OFICINA (id_oficina, superficie, cant_max_personas, monto_alquiler, tipo_o) VALUES (10, 25, 19, 35.21, 'C');
+INSERT INTO GR01_OFICINA (id_oficina, superficie, cant_max_personas, monto_alquiler, tipo_o) VALUES (11, 90, 32, 89.59, 'R');
 --GR01_OFICINA_REG
-INSERT INTO GR01_OFICINA_REG (id_oficina, cant_escritorios, cant_pc)
-VALUES (1, 7, 16);
-INSERT INTO GR01_OFICINA_REG (id_oficina, cant_escritorios, cant_pc)
-VALUES (2, 1, 18);
-INSERT INTO GR01_OFICINA_REG (id_oficina, cant_escritorios, cant_pc)
-VALUES (3, 17, 4);
-INSERT INTO GR01_OFICINA_REG (id_oficina, cant_escritorios, cant_pc)
-VALUES (4, 23, 25);
-INSERT INTO GR01_OFICINA_REG (id_oficina, cant_escritorios, cant_pc)
-VALUES (5, 29, 17);
+INSERT INTO GR01_OFICINA_REG (id_oficina, cant_escritorios, cant_pc) VALUES (1, 7, 16);
+INSERT INTO GR01_OFICINA_REG (id_oficina, cant_escritorios, cant_pc) VALUES (2, 1, 18);
+INSERT INTO GR01_OFICINA_REG (id_oficina, cant_escritorios, cant_pc) VALUES (3, 17, 4);
+INSERT INTO GR01_OFICINA_REG (id_oficina, cant_escritorios, cant_pc) VALUES (4, 23, 25);
+INSERT INTO GR01_OFICINA_REG (id_oficina, cant_escritorios, cant_pc) VALUES (5, 29, 17);
+INSERT INTO GR01_OFICINA_REG (id_oficina, cant_escritorios, cant_pc) VALUES (11, 11, 4);
+
 -- SE OMITIO EJECUTAR ESTAS LINEAS PORQUE CADA OFICINA ESTA RELACIONADA CON UN TIPO_O
 --INSERT INTO GR01_OFICINA_REG (id_oficina, cant_escritorios, cant_pc) VALUES (5, 8, 15);
 --INSERT INTO GR01_OFICINA_REG (id_oficina, cant_escritorios, cant_pc) VALUES (9, 20, 17);

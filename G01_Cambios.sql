@@ -37,9 +37,12 @@ RETURNS TRIGGER AS $$
                 SET cant_escritorios = NEW.cant_escritorios, cant_pc = NEW.cant_pc
                 WHERE id_oficina = NEW.id_oficina;
         ELSE
+
             INSERT INTO GR01_OFICINA (ID_OFICINA, SUPERFICIE, CANT_MAX_PERSONAS, MONTO_ALQUILER, TIPO_O)
-                VALUES (NEW.id_oficina , NEW.superficie, NEW.cant_max_personas, NEW.monto_alquiler,'R');
-            INSERT INTO GR01_V_OFICINA_REGULAR (id_oficina,cant_escritorios,cant_pc)
+                VALUES (NEW.id_oficina , NEW.superficie, NEW.cant_max_personas, NEW.monto_alquiler,'R')
+                ;
+
+            INSERT INTO gr01_oficina_reg (id_oficina,cant_escritorios,cant_pc)
                 VALUES (NEW.id_oficina,NEW.cant_escritorios,NEW.cant_pc);
         END IF;
         RETURN NULL;
@@ -54,14 +57,14 @@ RETURNS TRIGGER AS $$
             UPDATE GR01_OFICINA
                 SET superficie = NEW.superficie,cant_max_personas = NEW.cant_max_personas, monto_alquiler = NEW.monto_alquiler
                 WHERE id_oficina = NEW.id_oficina;
-            UPDATE GR01_V_SALA_CONVENCION
+            UPDATE GR01_SALA_CONVENCION
                 SET cant_sillas = NEW.cant_sillas, cant_pantallas = NEW.cant_pantallas
                 WHERE id_oficina = NEW.id_oficina;
         end if;
         IF (tg_op= 'INSERT') THEN
             INSERT INTO GR01_OFICINA (id_oficina, superficie, cant_max_personas, monto_alquiler, tipo_o)
                 VALUES (NEW.id_oficina, new.superficie , new.cant_max_personas, new.monto_alquiler,'C');
-            INSERT INTO GR01_V_SALA_CONVENCION (id_oficina,cant_pantallas, cant_sillas)
+            INSERT INTO GR01_SALA_CONVENCION (id_oficina,cant_pantallas, cant_sillas)
                 VALUES (NEW.id_oficina, NEW.cant_pantallas,NEW.cant_sillas);
             return null;
 
@@ -83,7 +86,7 @@ CREATE TRIGGER TR_GR01_V_OFICINA_REGULAR
     FOR EACH ROW
     EXECUTE PROCEDURE FN_GR01_V_OFICINA_REGULAR();
 
-
+select (*) from gr01_oficina_reg;
 INSERT INTO gr01_v_oficina_regular (id_oficina,superficie,cant_max_personas,monto_alquiler,cant_escritorios,cant_pc)
         VALUES (600,93,8,55.54,2,2);
 

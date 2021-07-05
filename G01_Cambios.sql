@@ -2,11 +2,101 @@
 --                                              A.TRIGGERS Y SERVICIOS
 /**==================================================================================================================*/
 
---1.Se le agregara columna cantidad_salas (cantidad de salas de convención) y cantidad_oficinas
---(cantidad de oficinas regulares) a la tabla CLIENTE.  Es necesario mantener actualizadas las columnas
---cantidad_salas y cantidad_oficinas con la cantidad de salas de convención y oficinas regulares que cada cliente
--- tiene alquiladas por tiempo indeterminado (es decir que aún no tienen fecha de fin). Se debe realizar
--- con triggers FOR STATEMENT.
+--  1.Se le agregara columna cantidad_salas (cantidad de salas de convención)
+--y cantidad_oficinas (cantidad de oficinas regulares) a la tabla CLIENTE.
+--  Es necesario mantener actualizadas las columnas cantidad_salas y cantidad_oficinas
+--con la cantidad de salas de convención y oficinas regulares
+--que cada cliente tiene alquiladas por tiempo indeterminado
+--(es decir que aún no tienen fecha de fin).
+--  Se debe realizar con triggers FOR STATEMENT.
+
+ALTER TABLE gr01_cliente
+    ADD COLUMN cantidad_salas integer;
+
+ALTER TABLE gr01_cliente
+    ADD COLUMN cantidad_oficinas integer;
+
+-- Inicialmente todas las tuplas en la tabla GR01_CLIENTE tendran valor null en las nuevas columnas.
+-- Para asignar el valor correspondiente a cada tupla en ambas columnas se ejecuta un procedimiento.
+UPDATE gr01_cliente SET cantidad_salas = 0, cantidad_oficinas = 0;
+-- por ahora es asi
+
+-- Luego, al añadir o modificar datos (alquila o cliente), estas columnas se mantendran actualizadas por medio de triggers
+
+--TRFN_<GRXX>_<nnnn>
+CREATE OR REPLACE FUNCTION TRFN_GR01_OFICINAS_CLIENTE()
+    RETURNS TRIGGER AS
+$$
+DECLARE
+    cant_salas_nuevas    integer;
+    cant_oficinas_nuevas integer;
+    cliente_alquila      gr01_alquila%rowtype;
+BEGIN
+
+    IF (TG_OP = 'INSERT') THEN
+        FOR cliente_alquila IN
+            SELECT tipo_doc, nro_doc FROM new_tbl WHERE new_tbl.fecha_hasta IS NULL GROUP BY tipo_doc, nro_doc
+            LOOP
+                cant_salas_nuevas := (SELECT count(s.id_oficina)
+                                      FROM new_tbl n
+                                               JOIN gr01_sala_convencion s ON n.id_oficina = s.id_oficina
+                                      WHERE cliente_alquila.nro_doc = n.nro_doc
+                                        AND cliente_alquila.tipo_doc = n.tipo_doc);
+                cant_oficinas_nuevas := (SELECT count(o.id_oficina)
+                                         FROM new_tbl n
+                                                  JOIN gr01_oficina_reg o ON n.id_oficina = o.id_oficina
+                                         WHERE cliente_alquila.nro_doc = n.nro_doc
+                                           AND cliente_alquila.tipo_doc = n.tipo_doc);
+
+                UPDATE gr01_cliente
+                SET cantidad_oficinas = cantidad_oficinas + cant_oficinas_nuevas,
+                    cantidad_salas    = cantidad_salas + cant_salas_nuevas
+                WHERE tipo_doc = cliente_alquila.tipo_doc
+                  AND nro_doc = cliente_alquila.nro_doc;
+
+            END LOOP;
+
+
+    ELSEIF (TG_OP = 'DELETE') THEN
+
+    ELSEIF (TG_OP = 'UPDATE') THEN
+
+    END IF;
+
+
+    RETURN NULL;
+END
+$$
+    LANGUAGE 'plpgsql';
+
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde)
+VALUES ('DNI', 25930772, 10, '11/1/2019');
+
+delete
+from gr01_alquila
+where nro_doc = 25930772
+  AND tipo_doc = 'DNI'
+  AND id_oficina = 10;
+
+update gr01_cliente set cantidad_salas = 0, cantidad_oficinas = 0;
+
+SELECT *
+FROM gr01_cliente;
+
+(SELECT count(o.id_oficina)
+ FROM gr01_oficina_reg o
+          JOIN gr01_alquila a on o.id_oficina = a.id_oficina
+ WHERE a.nro_doc = 25930772
+   AND a.tipo_doc = 'DNI');
+
+--TR_<GRXX>_<tbl>_<nnnn>
+CREATE TRIGGER TR_GR01_ALQUILA
+    AFTER INSERT
+    ON GR01_ALQUILA
+    REFERENCING NEW TABLE AS new_tbl
+    FOR EACH STATEMENT
+EXECUTE PROCEDURE TRFN_GR01_OFICINAS_CLIENTE();
+
 
 --2.Utilizando 2 vistas V_OFICINA_REGULAR y V_SALA_CONVENCION que contienen todos los datos de las oficinas
 -- regulares o de las salas de convención respectivamente, construir los triggers INSTEAD OF necesarios para
@@ -187,16 +277,26 @@ GR01_V_PROMEDIO que, a su vez y como vimos anteriormente, no es actualizable.
 /**==================================================================================================================*/
 
 -- GR01_CLIENTE
-INSERT INTO GR01_CLIENTE (tipo_doc, nro_doc, nombre, e_mail, apellido) VALUES ('DNI', 25930772, 'Prue', 'pchattell0@livejournal.com', 'Chattell');
-INSERT INTO GR01_CLIENTE (tipo_doc, nro_doc, nombre, e_mail, apellido) VALUES ('DNI', 40571911, 'Andriette', 'ablaby1@tinyurl.com', 'Blaby');
-INSERT INTO GR01_CLIENTE (tipo_doc, nro_doc, nombre, e_mail, apellido) VALUES ('DNI', 27605420, 'Penn', 'ppapaminas2@jugem.jp', 'Papaminas');
-INSERT INTO GR01_CLIENTE (tipo_doc, nro_doc, nombre, e_mail, apellido) VALUES ('DNI', 27605222, 'Harwell', 'hjobes3@zimbio.com', 'Jobes');
-INSERT INTO GR01_CLIENTE (tipo_doc, nro_doc, nombre, e_mail, apellido) VALUES ('RUC', 39523827, 'Mellicent', 'mpuleque4@g.co', 'Puleque');
-INSERT INTO GR01_CLIENTE (tipo_doc, nro_doc, nombre, e_mail, apellido) VALUES ('RUC', 30460675, 'Domini', 'dduckwith5@gov.uk', 'Duckwith');
-INSERT INTO GR01_CLIENTE (tipo_doc, nro_doc, nombre, e_mail, apellido) VALUES ('RUC', 35158749, 'Elora', 'eallom6@plala.or.jp', 'Allom');
-INSERT INTO GR01_CLIENTE (tipo_doc, nro_doc, nombre, e_mail, apellido) VALUES ('RUC', 37425539, 'Andee', 'ayarwood7@digg.com', 'Yarwood');
-INSERT INTO GR01_CLIENTE (tipo_doc, nro_doc, nombre, e_mail, apellido) VALUES ('DNI', 39768674, 'Florida', 'fbottell8@ftc.gov', 'Bottell');
-INSERT INTO GR01_CLIENTE (tipo_doc, nro_doc, nombre, e_mail, apellido) VALUES ('DNI', 284498096, 'Dionisio', 'dmellsop9@blogger.com', 'Mellsop');
+INSERT INTO GR01_CLIENTE (tipo_doc, nro_doc, nombre, e_mail, apellido)
+VALUES ('DNI', 25930772, 'Prue', 'pchattell0@livejournal.com', 'Chattell');
+INSERT INTO GR01_CLIENTE (tipo_doc, nro_doc, nombre, e_mail, apellido)
+VALUES ('DNI', 40571911, 'Andriette', 'ablaby1@tinyurl.com', 'Blaby');
+INSERT INTO GR01_CLIENTE (tipo_doc, nro_doc, nombre, e_mail, apellido)
+VALUES ('DNI', 27605420, 'Penn', 'ppapaminas2@jugem.jp', 'Papaminas');
+INSERT INTO GR01_CLIENTE (tipo_doc, nro_doc, nombre, e_mail, apellido)
+VALUES ('DNI', 27605222, 'Harwell', 'hjobes3@zimbio.com', 'Jobes');
+INSERT INTO GR01_CLIENTE (tipo_doc, nro_doc, nombre, e_mail, apellido)
+VALUES ('RUC', 39523827, 'Mellicent', 'mpuleque4@g.co', 'Puleque');
+INSERT INTO GR01_CLIENTE (tipo_doc, nro_doc, nombre, e_mail, apellido)
+VALUES ('RUC', 30460675, 'Domini', 'dduckwith5@gov.uk', 'Duckwith');
+INSERT INTO GR01_CLIENTE (tipo_doc, nro_doc, nombre, e_mail, apellido)
+VALUES ('RUC', 35158749, 'Elora', 'eallom6@plala.or.jp', 'Allom');
+INSERT INTO GR01_CLIENTE (tipo_doc, nro_doc, nombre, e_mail, apellido)
+VALUES ('RUC', 37425539, 'Andee', 'ayarwood7@digg.com', 'Yarwood');
+INSERT INTO GR01_CLIENTE (tipo_doc, nro_doc, nombre, e_mail, apellido)
+VALUES ('DNI', 39768674, 'Florida', 'fbottell8@ftc.gov', 'Bottell');
+INSERT INTO GR01_CLIENTE (tipo_doc, nro_doc, nombre, e_mail, apellido)
+VALUES ('DNI', 284498096, 'Dionisio', 'dmellsop9@blogger.com', 'Mellsop');
 
 --GR01_OFICINA
 INSERT INTO GR01_OFICINA (id_oficina, superficie, cant_max_personas, monto_alquiler, tipo_o) VALUES (1, 93, 8, 55.54, 'R');
@@ -217,6 +317,7 @@ INSERT INTO GR01_OFICINA_REG (id_oficina, cant_escritorios, cant_pc) VALUES (3, 
 INSERT INTO GR01_OFICINA_REG (id_oficina, cant_escritorios, cant_pc) VALUES (4, 23, 25);
 INSERT INTO GR01_OFICINA_REG (id_oficina, cant_escritorios, cant_pc) VALUES (5, 29, 17);
 INSERT INTO GR01_OFICINA_REG (id_oficina, cant_escritorios, cant_pc) VALUES (11, 11, 4);
+
 -- SE OMITIO EJECUTAR ESTAS LINEAS PORQUE CADA OFICINA ESTA RELACIONADA CON UN TIPO_O
 --INSERT INTO GR01_OFICINA_REG (id_oficina, cant_escritorios, cant_pc) VALUES (5, 8, 15);
 --INSERT INTO GR01_OFICINA_REG (id_oficina, cant_escritorios, cant_pc) VALUES (9, 20, 17);
@@ -225,11 +326,16 @@ INSERT INTO GR01_OFICINA_REG (id_oficina, cant_escritorios, cant_pc) VALUES (11,
 --INSERT INTO GR01_OFICINA_REG (id_oficina, cant_escritorios, cant_pc) VALUES (9, 23, 10);
 
 --GR01_SALA_CONVENCION
-INSERT INTO GR01_SALA_CONVENCION (id_oficina, cant_sillas, cant_pantallas) VALUES (6, 50, 2);
-INSERT INTO GR01_SALA_CONVENCION (id_oficina, cant_sillas, cant_pantallas) VALUES (7, 15, 3);
-INSERT INTO GR01_SALA_CONVENCION (id_oficina, cant_sillas, cant_pantallas) VALUES (8, 34, 4);
-INSERT INTO GR01_SALA_CONVENCION (id_oficina, cant_sillas, cant_pantallas) VALUES (9, 8, 8);
-INSERT INTO GR01_SALA_CONVENCION (id_oficina, cant_sillas, cant_pantallas) VALUES (10, 94, 11);
+INSERT INTO GR01_SALA_CONVENCION (id_oficina, cant_sillas, cant_pantallas)
+VALUES (6, 50, 2);
+INSERT INTO GR01_SALA_CONVENCION (id_oficina, cant_sillas, cant_pantallas)
+VALUES (7, 15, 3);
+INSERT INTO GR01_SALA_CONVENCION (id_oficina, cant_sillas, cant_pantallas)
+VALUES (8, 34, 4);
+INSERT INTO GR01_SALA_CONVENCION (id_oficina, cant_sillas, cant_pantallas)
+VALUES (9, 8, 8);
+INSERT INTO GR01_SALA_CONVENCION (id_oficina, cant_sillas, cant_pantallas)
+VALUES (10, 94, 11);
 -- SE OMITIO EJECUTAR ESTAS LINEAS PORQUE CADA OFICINA ESTA RELACIONADA CON UN TIPO_O
 --INSERT INTO GR01_SALA_CONVENCION (id_oficina, cant_sillas, cant_pantallas) VALUES (1, 74, 20);
 --INSERT INTO GR01_SALA_CONVENCION (id_oficina, cant_sillas, cant_pantallas) VALUES (2, 30, 6);
@@ -238,62 +344,109 @@ INSERT INTO GR01_SALA_CONVENCION (id_oficina, cant_sillas, cant_pantallas) VALUE
 --INSERT INTO GR01_SALA_CONVENCION (id_oficina, cant_sillas, cant_pantallas) VALUES (5, 66, 1);
 
 --GR01_ALQUILA
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('DNI', 25930772,1, '11/1/2019', '12/31/2020');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('DNI', 40571911, 1, '10/1/2019', '8/6/2020');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('DNI', 27605420, 1, '7/28/2019', '9/7/2020');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('DNI', 27605222, 1, '2/21/2020', '4/11/2021');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('RUC', 39523827, 1, '6/28/2019', '6/4/2021');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('RUC', 30460675, 1, '10/9/2018', '8/25/2020');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('RUC', 35158749, 1, '2/27/2020', '11/11/2020');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('RUC', 37425539, 1, '2/6/2020', '6/1/2021');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('DNI', 284498096,1, '1/30/2020', '1/1/2021');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('DNI', 25930772, 1, '11/1/2019', '12/31/2020');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('DNI', 40571911, 1, '10/1/2019', '8/6/2020');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('DNI', 27605420, 1, '7/28/2019', '9/7/2020');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('DNI', 27605222, 1, '2/21/2020', '4/11/2021');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('RUC', 39523827, 1, '6/28/2019', '6/4/2021');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('RUC', 30460675, 1, '10/9/2018', '8/25/2020');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('RUC', 35158749, 1, '2/27/2020', '11/11/2020');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('RUC', 37425539, 1, '2/6/2020', '6/1/2021');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('DNI', 284498096, 1, '1/30/2020', '1/1/2021');
 /*INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('DNI', 39768679, 1, '10/15/2019', '1/18/2021');*/
 --[2021-06-30 04:29:05] [23503] ERROR: insert or update on table "gr01_alquila" violates foreign key constraint "fk_gr01_alquila_cliente"
 --[2021-06-30 04:29:05] Detail: Key (tipo_doc, nro_doc)=(DNI, 39768679) is not present in table "gr01_cliente".
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('DNI', 39768674, 1, '10/15/2019', '1/18/2021');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('DNI', 39768674, 1, '10/15/2019', '1/18/2021');
 
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('DNI', 25930772,3, '10/19/2019', '2/15/2021');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('DNI', 40571911,3, '3/30/2020', '12/27/2020');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('DNI', 27605420,3, '12/30/2019', '6/18/2021');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('DNI', 27605222,3, '7/8/2019', '4/1/2021');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('RUC', 39523827,3, '12/15/2018', '7/28/2020');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('RUC', 30460675,3, '12/30/2019', '5/8/2021');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('RUC', 35158749,3, '9/25/2019', '12/18/2020');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('RUC', 37425539,3, '12/21/2018', '5/3/2021');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('DNI', 39768674,3, '1/15/2019', '2/1/2021');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('DNI', 25930772, 3, '10/19/2019', '2/15/2021');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('DNI', 40571911, 3, '3/30/2020', '12/27/2020');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('DNI', 27605420, 3, '12/30/2019', '6/18/2021');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('DNI', 27605222, 3, '7/8/2019', '4/1/2021');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('RUC', 39523827, 3, '12/15/2018', '7/28/2020');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('RUC', 30460675, 3, '12/30/2019', '5/8/2021');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('RUC', 35158749, 3, '9/25/2019', '12/18/2020');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('RUC', 37425539, 3, '12/21/2018', '5/3/2021');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('DNI', 39768674, 3, '1/15/2019', '2/1/2021');
 /*INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('DNI', 28449809,3, '4/18/2021','11/23/2020');*/
 --[2021-06-30 04:32:31] [23503] ERROR: insert or update on table "gr01_alquila" violates foreign key constraint "fk_gr01_alquila_cliente"
 --[2021-06-30 04:32:31] Detail: Key (tipo_doc, nro_doc)=(DNI, 28449809) is not present in table "gr01_cliente".
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('DNI', 284498096,3, '4/18/2021','11/23/2020');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('DNI', 284498096, 3, '4/18/2021', '11/23/2020');
 
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('DNI', 25930772,9, '8/24/2018', '1/21/2021');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('DNI', 40571911,9, '11/13/2018', '8/23/2020');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('DNI', 27605420,9, '8/17/2019', '1/31/2021');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('DNI', 27605222,9, '9/5/2018', '6/15/2021');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('RUC', 39523827,9, '11/14/2018', '8/20/2020');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('RUC', 30460675,9, '4/4/2020', '5/16/2021');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('RUC', 35158749,9, '12/1/2019', '1/12/2021');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('RUC', 37425539,9, '3/6/2019', '12/29/2020');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('DNI', 39768674,9, '10/17/2018', '8/5/2020');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('DNI', 284498096,9, '2/14/2020', '3/6/2021');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('DNI', 25930772, 9, '8/24/2018', '1/21/2021');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('DNI', 40571911, 9, '11/13/2018', '8/23/2020');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('DNI', 27605420, 9, '8/17/2019', '1/31/2021');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('DNI', 27605222, 9, '9/5/2018', '6/15/2021');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('RUC', 39523827, 9, '11/14/2018', '8/20/2020');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('RUC', 30460675, 9, '4/4/2020', '5/16/2021');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('RUC', 35158749, 9, '12/1/2019', '1/12/2021');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('RUC', 37425539, 9, '3/6/2019', '12/29/2020');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('DNI', 39768674, 9, '10/17/2018', '8/5/2020');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('DNI', 284498096, 9, '2/14/2020', '3/6/2021');
 
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('DNI', 284498096, 10, '10/21/2019', '11/23/2020');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('DNI', 284498096, 2,'12/12/2018', '5/27/2021');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('DNI', 39768674, 2,'6/9/2020', '1/31/2021');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('RUC', 30460675, 2,'8/11/2018', '12/2/2020');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('RUC', 30460675, 4,'1/6/2019', '5/10/2021');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('DNI', 27605420, 4,'3/2/2019', '2/15/2021');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('RUC', 35158749, 4,'8/12/2019', '2/10/2021');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('DNI', 40571911, 5, '12/24/2018', '11/11/2020');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('DNI', 39768674, 5, '12/28/2019', '2/22/2021');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('DNI', 40571911, 6, '8/2/2018', '1/18/2021');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('RUC', 37425539, 6, '5/18/2019', '9/13/2020');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('DNI', 25930772, 7, '6/19/2020', '8/9/2020');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('DNI', 27605420, 7, '9/10/2018', '5/5/2021');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('RUC', 37425539, 8, '7/28/2018', '12/28/2020');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('DNI', 40571911, 8, '4/20/2020', '6/4/2021');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('RUC', 39523827, 8, '12/7/2018', '6/4/2021');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('DNI', 39768674, 8, '10/9/2018', '6/20/2021');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('DNI', 284498096, 10, '10/21/2019', '11/23/2020');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('DNI', 284498096, 2, '12/12/2018', '5/27/2021');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('DNI', 39768674, 2, '6/9/2020', '1/31/2021');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('RUC', 30460675, 2, '8/11/2018', '12/2/2020');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('RUC', 30460675, 4, '1/6/2019', '5/10/2021');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('DNI', 27605420, 4, '3/2/2019', '2/15/2021');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('RUC', 35158749, 4, '8/12/2019', '2/10/2021');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('DNI', 40571911, 5, '12/24/2018', '11/11/2020');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('DNI', 39768674, 5, '12/28/2019', '2/22/2021');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('DNI', 40571911, 6, '8/2/2018', '1/18/2021');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('RUC', 37425539, 6, '5/18/2019', '9/13/2020');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('DNI', 25930772, 7, '6/19/2020', '8/9/2020');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('DNI', 27605420, 7, '9/10/2018', '5/5/2021');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('RUC', 37425539, 8, '7/28/2018', '12/28/2020');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('DNI', 40571911, 8, '4/20/2020', '6/4/2021');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('RUC', 39523827, 8, '12/7/2018', '6/4/2021');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('DNI', 39768674, 8, '10/9/2018', '6/20/2021');
 
 /*INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('DNI', 40571911, 8, '2/10/2020', '1/14/2021');*/
 --[2021-06-30 04:38:51] [23505] ERROR: duplicate key value violates unique constraint "pk_gr01_alquila"
@@ -303,10 +456,14 @@ INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hast
 --[2021-06-30 04:40:40] [23503] ERROR: insert or update on table "gr01_alquila" violates foreign key constraint "fk_gr01_alquila_cliente"
 --[2021-06-30 04:40:40] Detail: Key (tipo_doc, nro_doc)=(DNI, 35158749) is not present in table "gr01_cliente".
 
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('RUC', 35158749, 8, '2/10/2020', '1/14/2021');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('RUC', 39523827, 10, '2/8/2019', '11/20/2020');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('DNI', 27605420, 10, '10/23/2018', '12/15/2020');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta) VALUES ('RUC', 35158749, 10,'10/21/2019', '6/10/2021');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('RUC', 35158749, 8, '2/10/2020', '1/14/2021');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('RUC', 39523827, 10, '2/8/2019', '11/20/2020');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('DNI', 27605420, 10, '10/23/2018', '12/15/2020');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
+VALUES ('RUC', 35158749, 10, '10/21/2019', '6/10/2021');
 
 -- tipo_doc + nro_doc de cada Cliente
 --1 'DNI', 25930772,

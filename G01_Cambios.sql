@@ -16,6 +16,7 @@ ALTER TABLE gr01_cliente
 ALTER TABLE gr01_cliente
     ADD COLUMN cantidad_oficinas integer;
 
+
 -- Inicialmente todas las tuplas en la tabla GR01_CLIENTE tendran valor null en las nuevas columnas.
 -- Para asignar el valor correspondiente a cada tupla en ambas columnas se ejecuta un procedimiento.
 UPDATE gr01_cliente SET cantidad_salas = 0, cantidad_oficinas = 0;

@@ -103,14 +103,14 @@ INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hast
 VALUES ('RUC', 30460675, 1, '10/9/2018', '8/25/2020');
 INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
 VALUES ('RUC', 35158749, 1, '2/27/2020', '11/11/2020');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
-VALUES ('RUC', 37425539, 1, '2/6/2020', '6/1/2021');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
-VALUES ('DNI', 284498096, 1, '1/30/2020', '1/1/2021');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
-VALUES ('DNI', 39768674, 1, '10/15/2019', '1/18/2021');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
-VALUES ('DNI', 25930772, 3, '10/19/2019', '2/15/2021');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde)
+VALUES ('RUC', 37425539, 1, '2/6/2020');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde)
+VALUES ('DNI', 284498096, 1, '1/30/2020');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde)
+VALUES ('DNI', 39768674, 1, '10/15/2019');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde)
+VALUES ('DNI', 25930772, 3, '10/19/2019');
 INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
 VALUES ('DNI', 40571911, 3, '3/30/2020', '12/27/2020');
 INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
@@ -125,10 +125,10 @@ INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hast
 VALUES ('RUC', 35158749, 3, '9/25/2019', '12/18/2020');
 INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
 VALUES ('RUC', 37425539, 3, '12/21/2018', '5/3/2021');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
-VALUES ('DNI', 39768674, 3, '1/15/2019', '2/1/2021');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
-VALUES ('DNI', 284498096, 3, '4/18/2021', '11/23/2020');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde)
+VALUES ('DNI', 39768674, 3, '1/15/2019');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde)
+VALUES ('DNI', 284498096, 3, '4/18/2021');
 INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
 VALUES ('DNI', 25930772, 9, '8/24/2018', '1/21/2021');
 INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
@@ -145,18 +145,18 @@ INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hast
 VALUES ('RUC', 35158749, 9, '12/1/2019', '1/12/2021');
 INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
 VALUES ('RUC', 37425539, 9, '3/6/2019', '12/29/2020');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
-VALUES ('DNI', 39768674, 9, '10/17/2018', '8/5/2020');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
-VALUES ('DNI', 284498096, 9, '2/14/2020', '3/6/2021');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
-VALUES ('DNI', 284498096, 10, '10/21/2019', '11/23/2020');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
-VALUES ('DNI', 284498096, 2, '12/12/2018', '5/27/2021');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
-VALUES ('DNI', 39768674, 2, '6/9/2020', '1/31/2021');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
-VALUES ('RUC', 30460675, 2, '8/11/2018', '12/2/2020');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde)
+VALUES ('DNI', 39768674, 9, '10/17/2018');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde)
+VALUES ('DNI', 284498096, 9, '2/14/2020');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde)
+VALUES ('DNI', 284498096, 10, '10/21/2019');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde)
+VALUES ('DNI', 284498096, 2, '12/12/2018');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde)
+VALUES ('DNI', 39768674, 2, '6/9/2020');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde)
+VALUES ('RUC', 30460675, 2, '8/11/2018');
 INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde)
 VALUES ('RUC', 30460675, 4, '1/6/2019');
 INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde)
@@ -239,23 +239,31 @@ $$
 DECLARE
     cant_salas_nuevas    integer;
     cant_oficinas_nuevas integer;
-    cliente_alquila      gr01_alquila%rowtype;
+    cliente_alquila      record;
 BEGIN
 
-    IF (TG_OP = 'INSERT') THEN
+    IF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
         FOR cliente_alquila IN
             SELECT DISTINCT tipo_doc, nro_doc FROM new_tbl WHERE new_tbl.fecha_hasta IS NULL
             LOOP
-                cant_salas_nuevas := (SELECT count(s.id_oficina)
-                                      FROM new_tbl n
-                                               JOIN gr01_sala_convencion s ON n.id_oficina = s.id_oficina
-                                      WHERE cliente_alquila.nro_doc = n.nro_doc
-                                        AND cliente_alquila.tipo_doc = n.tipo_doc);
-                cant_oficinas_nuevas := (SELECT count(o.id_oficina)
-                                         FROM new_tbl n
-                                                  JOIN gr01_oficina_reg o ON n.id_oficina = o.id_oficina
-                                         WHERE cliente_alquila.nro_doc = n.nro_doc
-                                           AND cliente_alquila.tipo_doc = n.tipo_doc);
+                SELECT count(*)
+                INTO cant_salas_nuevas
+                FROM new_tbl a
+                WHERE a.nro_doc = cliente_alquila.nro_doc
+                  AND cliente_alquila.tipo_doc = a.tipo_doc
+                  AND fecha_hasta IS NULL
+                  AND a.id_oficina IN (SELECT id_oficina
+                                       FROM gr01_oficina
+                                       WHERE tipo_o = 'C');
+                SELECT count(*)
+                INTO cant_oficinas_nuevas
+                FROM new_tbl a
+                WHERE a.nro_doc = cliente_alquila.nro_doc
+                  AND cliente_alquila.tipo_doc = a.tipo_doc
+                  AND fecha_hasta IS NULL
+                  AND a.id_oficina IN (SELECT id_oficina
+                                       FROM gr01_oficina
+                                       WHERE tipo_o = 'R');
 
                 UPDATE gr01_cliente
                 SET cantidad_oficinas = cantidad_oficinas + cant_oficinas_nuevas,
@@ -264,71 +272,80 @@ BEGIN
                   AND nro_doc = cliente_alquila.nro_doc;
 
             END LOOP;
-
-
-    ELSEIF (TG_OP = 'DELETE') THEN
-
-    ELSEIF (TG_OP = 'UPDATE') THEN
-
     END IF;
 
+    IF (TG_OP = 'DELETE' OR TG_OP = 'UPDATE') THEN
+        FOR cliente_alquila IN
+            SELECT DISTINCT tipo_doc, nro_doc FROM old_tbl WHERE old_tbl.fecha_hasta IS NULL
+            LOOP
+                SELECT count(*)
+                INTO cant_salas_nuevas
+                FROM old_tbl a
+                WHERE a.nro_doc = cliente_alquila.nro_doc
+                  AND cliente_alquila.tipo_doc = a.tipo_doc
+                  AND fecha_hasta IS NULL
+                  AND a.id_oficina IN (SELECT id_oficina
+                                       FROM gr01_oficina
+                                       WHERE tipo_o = 'C');
+                SELECT count(*)
+                INTO cant_oficinas_nuevas
+                FROM old_tbl a
+                WHERE a.nro_doc = cliente_alquila.nro_doc
+                  AND cliente_alquila.tipo_doc = a.tipo_doc
+                  AND fecha_hasta IS NULL
+                  AND a.id_oficina IN (SELECT id_oficina
+                                       FROM gr01_oficina
+                                       WHERE tipo_o = 'R');
 
+                UPDATE gr01_cliente
+                SET cantidad_oficinas = cantidad_oficinas + cant_oficinas_nuevas,
+                    cantidad_salas    = cantidad_salas + cant_salas_nuevas
+                WHERE tipo_doc = cliente_alquila.tipo_doc
+                  AND nro_doc = cliente_alquila.nro_doc;
+
+            END LOOP;
+    END IF;
     RETURN NULL;
 END
 $$
     LANGUAGE 'plpgsql';
 
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde)
-VALUES ('DNI', 25930772, 10, '11/1/2019');
-
-delete
-from gr01_alquila
-where nro_doc = 25930772
-  AND tipo_doc = 'DNI'
-  AND id_oficina = 10;
-
-update gr01_cliente
-set cantidad_salas    = 0,
-    cantidad_oficinas = 0;
-
-SELECT *
-FROM gr01_cliente;
-
-(SELECT count(o.id_oficina)
- FROM gr01_oficina_reg o
-          JOIN gr01_alquila a on o.id_oficina = a.id_oficina
- WHERE a.nro_doc = 25930772
-   AND a.tipo_doc = 'DNI');
-
 --TR_<GRXX>_<tbl>_<nnnn>
-CREATE TRIGGER TR_GR01_ALQUILA
+CREATE TRIGGER TR_GR01_ALQUILA_INS
     AFTER INSERT
     ON GR01_ALQUILA
     REFERENCING NEW TABLE AS new_tbl
     FOR EACH STATEMENT
 EXECUTE PROCEDURE TRFN_GR01_OFICINAS_CLIENTE();
 
+CREATE TRIGGER TR_GR01_ALQUILA_DEL
+    AFTER DELETE
+    ON GR01_ALQUILA
+    REFERENCING OLD TABLE AS old_tbl
+    FOR EACH STATEMENT
+EXECUTE PROCEDURE TRFN_GR01_OFICINAS_CLIENTE();
+
+CREATE TRIGGER TR_GR01_ALQUILA_UPD
+    AFTER UPDATE
+    ON GR01_ALQUILA
+    REFERENCING OLD TABLE AS old_tbl NEW TABLE AS new_tbl
+    FOR EACH STATEMENT
+EXECUTE PROCEDURE TRFN_GR01_OFICINAS_CLIENTE();
+
+
 
 /*
   Inserts para comprobar que se actualizan automáticamente
 
-
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
-VALUES ('RUC', 37425539, 8, '7/28/2018', '12/28/2020');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
-VALUES ('DNI', 40571911, 8, '4/20/2020', '6/4/2021');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
-VALUES ('RUC', 39523827, 8, '12/7/2018', '6/4/2021');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
-VALUES ('DNI', 39768674, 8, '10/9/2018', '6/20/2021');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
-VALUES ('RUC', 35158749, 8, '2/10/2020', '1/14/2021');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
-VALUES ('RUC', 39523827, 10, '2/8/2019', '11/20/2020');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
-VALUES ('DNI', 27605420, 10, '10/23/2018', '12/15/2020');
-INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
-VALUES ('RUC', 35158749, 10, '10/21/2019', '6/10/2021');
+INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde)
+VALUES ('RUC', 37425539, 8, '7/28/2018'),
+       ('DNI', 40571911, 8, '4/20/2020'),
+       ('RUC', 39523827, 8, '12/7/2018'),
+       ('DNI', 39768674, 8, '10/9/2018'),
+       ('RUC', 35158749, 8, '2/10/2020'),
+       ('RUC', 39523827, 10, '2/8/2019'),
+       ('DNI', 27605420, 10, '10/23/2018'),
+       ('RUC', 35158749, 10, '10/21/2019');
 
 */
 
@@ -353,7 +370,7 @@ FROM GR01_OFICINA o
 
 --************************************* CREACION DE TRIGGERS INSTEAD OF ******************************************
 
-CREATE OR REPLACE FUNCTION FN_GR01_V_OFICINA_REGULAR()
+CREATE OR REPLACE FUNCTION TRFN_GR01_V_OFICINA_REGULAR()
     RETURNS TRIGGER AS
 $$
 BEGIN
@@ -367,7 +384,9 @@ BEGIN
         SET cant_escritorios = NEW.cant_escritorios,
             cant_pc          = NEW.cant_pc
         WHERE id_oficina = NEW.id_oficina;
-    ELSE
+    END IF;
+
+    IF (TG_OP = 'INSERT') THEN
 
         INSERT INTO GR01_OFICINA (ID_OFICINA, SUPERFICIE, CANT_MAX_PERSONAS, MONTO_ALQUILER, TIPO_O)
         VALUES (NEW.id_oficina, NEW.superficie, NEW.cant_max_personas, NEW.monto_alquiler, 'R');
@@ -375,12 +394,16 @@ BEGIN
         INSERT INTO gr01_oficina_reg (id_oficina, cant_escritorios, cant_pc)
         VALUES (NEW.id_oficina, NEW.cant_escritorios, NEW.cant_pc);
     END IF;
+
+    IF (TG_OP = 'DELETE') THEN
+        DELETE FROM gr01_oficina WHERE id_oficina = old.id_oficina;
+    END IF;
     RETURN NULL;
 END;
 $$
     LANGUAGE 'plpgsql';
 
-CREATE OR REPLACE FUNCTION FN_GR01_V_SALA_CONVENCION()
+CREATE OR REPLACE FUNCTION TRFN_GR01_V_SALA_CONVENCION()
     RETURNS TRIGGER AS
 $$
 BEGIN
@@ -394,14 +417,16 @@ BEGIN
         SET cant_sillas    = NEW.cant_sillas,
             cant_pantallas = NEW.cant_pantallas
         WHERE id_oficina = NEW.id_oficina;
-    end if;
+    END IF;
     IF (tg_op = 'INSERT') THEN
         INSERT INTO GR01_OFICINA (id_oficina, superficie, cant_max_personas, monto_alquiler, tipo_o)
         VALUES (NEW.id_oficina, new.superficie, new.cant_max_personas, new.monto_alquiler, 'C');
         INSERT INTO GR01_SALA_CONVENCION (id_oficina, cant_pantallas, cant_sillas)
         VALUES (NEW.id_oficina, NEW.cant_pantallas, NEW.cant_sillas);
-        return null;
+    END IF;
 
+    IF (TG_OP = 'DELETE') THEN
+        DELETE FROM gr01_oficina WHERE id_oficina = old.id_oficina;
     END IF;
     RETURN NULL;
 END;
@@ -409,22 +434,33 @@ $$
     LANGUAGE 'plpgsql';
 
 CREATE TRIGGER TR_GR01_V_SALA_CONVENCION
-    INSTEAD OF INSERT OR UPDATE
+    INSTEAD OF INSERT OR UPDATE OR DELETE
     ON GR01_V_SALA_CONVENCION
     FOR EACH ROW
-EXECUTE PROCEDURE FN_GR01_V_SALA_CONVENCION();
+EXECUTE PROCEDURE TRFN_GR01_V_SALA_CONVENCION();
 
 CREATE TRIGGER TR_GR01_V_OFICINA_REGULAR
-    INSTEAD OF INSERT OR UPDATE
+    INSTEAD OF INSERT OR UPDATE OR DELETE
     ON GR01_V_OFICINA_REGULAR
     FOR EACH ROW
-EXECUTE PROCEDURE FN_GR01_V_OFICINA_REGULAR();
+EXECUTE PROCEDURE TRFN_GR01_V_OFICINA_REGULAR();
 
-select (*)
-from gr01_oficina_reg;
+
+/*
+select *
+from GR01_V_OFICINA_REGULAR;
+
+select *
+from GR01_V_SALA_CONVENCION;
+
+DELETE FROM GR01_V_OFICINA_REGULAR WHERE id_oficina = 1;
+
+
 INSERT INTO gr01_v_oficina_regular (id_oficina, superficie, cant_max_personas, monto_alquiler, cant_escritorios,
                                     cant_pc)
 VALUES (600, 93, 8, 55.54, 2, 2);
+*/
+
 
 /**==================================================================================================================*/
 --                                              B.VISTAS
@@ -442,32 +478,29 @@ WHERE NOT EXISTS(SELECT 1
                                   WHERE aq.id_oficina = of.id_oficina
                                     AND aq.nro_doc = cl.nro_doc
                                     AND aq.tipo_doc = cl.tipo_doc));
+/*
+La vista es actualizable porque tiene la primary key y no presenta ensambles ni funciones de grupo.
+
+Consultas de comprobacion:
 
 SELECT *
 FROM GR01_V_CLIENTE_COMP;
 
+SELECT count(*)       --cantidad de alquileres de cada oficina
+FROM gr01_alquila
+GROUP BY id_oficina;
+
+SELECT count(*)       --cantidad de clientes
+FROM gr01_cliente;
+
+*/
+
+
 --2. Construya una vista V_OFICINAS_REG que liste para cada oficina su identificador,
 --su tipo, su superficie, su monto de alquiler y la cantidad promedio de escritorios por superficie.
 
-/*CREATE VIEW GR01_V_OFICINAS_REG AS
-    SELECT id_oficina, superficie, cant_max_personas, monto_alquiler, tipo_o, AVG(r.cant_escritorios)
-    FROM gr01_oficina o
-    JOIN gr01_oficina_reg r on o.id_oficina = r.id_oficina
-    WHERE id_oficina IN (SELECT id_oficina
-                        FROM gr01_oficina_reg r
-                        WHERE id_oficina IN (SELECT id_oficina
-                                            FROM gr01_oficina
-                                            GROUP BY superficie));
-
-CREATE VIEW GR01_V_OFICINAS_REG AS
-SELECT o.id_oficina,  monto_alquiler, tipo_o, superficie, cant_escritorios, AVG(cant_escritorios)
-FROM gr01_oficina o
-JOIN gr01_oficina_reg r on o.id_oficina = r.id_oficina
-WHERE o.superficie IN (SELECT o1.superficie
-                        FROM gr01_oficina o1
-                        GROUP BY o1.superficie)
-GROUP BY o.id_oficina, superficie, cant_max_personas, monto_alquiler, tipo_o, cant_escritorios;
-
+/*
+Aclaración: estos fueron las primeras conclusiones a las que llegamos
 
 --ESTO ME TRAE EL PROMEDIO:
 SELECT superficie, AVG(cant_escritorios)
@@ -480,21 +513,20 @@ SELECT o.id_oficina,  monto_alquiler, tipo_o, superficie, AVG(cant_escritorios)
 FROM gr01_oficina o
 JOIN gr01_oficina_reg r ON r.id_oficina = o.id_oficina
 GROUP BY superficie, o.id_oficina;
+*/
 
-SELECT id_oficina,  monto_alquiler, tipo_o, superficie, AVG(cant_escritorios)
-FROM gr01_oficina o
-JOIN gr01_oficina_reg r ON r.id_oficina = o.id_oficina
-JOIN gr01_oficina o1 ON o1.id_oficina = o.id_oficina
-WHERE r.superficie IN (SELECT o.superficie
-    FROM )
-GROUP BY superficie;
+/*
+                                        SOLUCION FINAL:
 
-SELECT id_oficina,  monto_alquiler, tipo_o, superficie, (SELECT AVG(r.cant_escritorios)
-                                                            FROM GR01_V_OFICINAS_REG r
-                                                            JOIN gr01_oficina o ON o.id_oficina = r.id_oficina
-                                                            GROUP BY o.superficie)
-FROM gr01_oficina;
+Se crea primero la vista GR01_V_PROMEDIO para poder obtener el promedio de escritos por superficie.
+No es posible hacer esta vista actualizable porque es necesario proyectar atributos de las dos tablas involucradas y
+utilizar funciones de agrupamiento.
 
+Luego se crea la vista GR01_V_OFICINAS_REG, solicitada en el ejercicio, en la que se proyectan los atributos de la tabla
+gr01_oficina y se hace un join para traer los resultados de la vista GR01_V_PROMEDIO.
+
+La vista resultante no es actualizable, porque es necesario proyectar atributos de la tabla gr01_oficina y de la vista
+GR01_V_PROMEDIO que, a su vez y como vimos anteriormente, no es actualizable.
 */
 
 CREATE VIEW GR01_V_PROMEDIO AS
@@ -507,28 +539,15 @@ CREATE VIEW GR01_V_OFICINAS_REG AS
 SELECT id_oficina, monto_alquiler, tipo_o, v.superficie, v.promedio
 FROM gr01_oficina o
          JOIN GR01_V_PROMEDIO v ON v.superficie = o.superficie;
+/*
+Consulta de comprobacion:
 
 SELECT *
 FROM GR01_V_OFICINAS_REG;
-/*
-Se crea primero la vista GR01_V_PROMEDIO para poder obtener el promedio de escritos por superficie.
-No es posible hacer esta vista actualizable porque es necesario proyectar atributos de las dos tablas involucradas y
-utilizar funciones de agrupamiento.
-Luego se crea la vista GR01_V_OFICINAS_REG, solicitada en el ejercicio, en la que se proyectan los atributos de la tabla
-gr01_oficina y se hace un join para traer los resultados de la vista GR01_V_PROMEDIO.
-La vista resultante no es actualizable, porque es necesario proyectar atributos de la tabla gr01_oficina y de la vista
-GR01_V_PROMEDIO que, a su vez y como vimos anteriormente, no es actualizable.
+
 */
 
 
--- tipo_doc + nro_doc de cada Cliente
---1 'DNI', 25930772,
---2 'DNI', 40571911,
---3 'DNI', 27605420,
---4 'DNI', 27605222,
---5 'RUC', 39523827,
---6 'RUC', 30460675,
---7 'RUC', 35158749,
---8 'RUC', 37425539,
---9 'DNI', 39768674,
---10 'DNI', 28449809,
+
+
+

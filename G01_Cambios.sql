@@ -62,13 +62,6 @@ VALUES (5, 29, 17);
 INSERT INTO GR01_OFICINA_REG (id_oficina, cant_escritorios, cant_pc)
 VALUES (11, 11, 4);
 
--- SE OMITIO EJECUTAR ESTAS LINEAS PORQUE CADA OFICINA ESTA RELACIONADA CON UN TIPO_O
---INSERT INTO GR01_OFICINA_REG (id_oficina, cant_escritorios, cant_pc) VALUES (5, 8, 15);
---INSERT INTO GR01_OFICINA_REG (id_oficina, cant_escritorios, cant_pc) VALUES (9, 20, 17);
---INSERT INTO GR01_OFICINA_REG (id_oficina, cant_escritorios, cant_pc) VALUES (8, 5, 20);
---INSERT INTO GR01_OFICINA_REG (id_oficina, cant_escritorios, cant_pc) VALUES (9, 27, 1);
---INSERT INTO GR01_OFICINA_REG (id_oficina, cant_escritorios, cant_pc) VALUES (9, 23, 10);
-
 --GR01_SALA_CONVENCION
 INSERT INTO GR01_SALA_CONVENCION (id_oficina, cant_sillas, cant_pantallas)
 VALUES (6, 50, 2);
@@ -80,13 +73,6 @@ INSERT INTO GR01_SALA_CONVENCION (id_oficina, cant_sillas, cant_pantallas)
 VALUES (9, 8, 8);
 INSERT INTO GR01_SALA_CONVENCION (id_oficina, cant_sillas, cant_pantallas)
 VALUES (10, 94, 11);
-
--- SE OMITIO EJECUTAR ESTAS LINEAS PORQUE CADA OFICINA ESTA RELACIONADA CON UN TIPO_O
---INSERT INTO GR01_SALA_CONVENCION (id_oficina, cant_sillas, cant_pantallas) VALUES (1, 74, 20);
---INSERT INTO GR01_SALA_CONVENCION (id_oficina, cant_sillas, cant_pantallas) VALUES (2, 30, 6);
---INSERT INTO GR01_SALA_CONVENCION (id_oficina, cant_sillas, cant_pantallas) VALUES (3, 66, 16);
---INSERT INTO GR01_SALA_CONVENCION (id_oficina, cant_sillas, cant_pantallas) VALUES (4, 1, 20);
---INSERT INTO GR01_SALA_CONVENCION (id_oficina, cant_sillas, cant_pantallas) VALUES (5, 66, 1);
 
 --GR01_ALQUILA
 INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde, fecha_hasta)
@@ -183,18 +169,16 @@ VALUES ('DNI', 27605420, 8, '9/10/2018');
 --                                              A.TRIGGERS Y SERVICIOS
 /**==================================================================================================================*/
 
+-- ///////////////////////////////////////////////  Ejercicio 1  //////////////////////////////////////////////////////
 
-/**==================================================================================================================*/
---                                                  Ejercicio 1
-/**==================================================================================================================*/
-/*
-  Se le agregara columna cantidad_salas (cantidad salas convención) y cantidad_oficinas(cantidad oficinas regulares)
+/*--------------------------------------------------------------------------------------------------------------------
+  1) Se le agregara columna cantidad_salas (cantidad salas convención) y cantidad_oficinas(cantidad oficinas regulares)
 a la tabla CLIENTE.
   Es necesario mantener actualizadas las columnas cantidad_salas y cantidad_oficinas con la cantidad de salas de
 convención y oficinas regulares que cada cliente tiene alquiladas por tiempo indeterminado (es decir que aún no tienen
 fecha de fin).
   Se debe realizar con triggers FOR STATEMENT.
-*/
+  --------------------------------------------------------------------------------------------------------------------*/
 
 ALTER TABLE gr01_cliente
     ADD COLUMN cantidad_salas integer;
@@ -202,10 +186,10 @@ ALTER TABLE gr01_cliente
 ALTER TABLE gr01_cliente
     ADD COLUMN cantidad_oficinas integer;
 
-/*
+/*-------------------------------------------------------------------------------------------------------------------
   Inicialmente todas las tuplas en la tabla GR01_CLIENTE tendran valor null en las nuevas columnas.
   Para asignar el valor correspondiente a cada tupla en ambas columnas se ejecuta lo siguiente.
-*/
+  --------------------------------------------------------------------------------------------------------------------*/
 
 UPDATE gr01_cliente c
 SET cantidad_salas    = (SELECT count(*)
@@ -224,9 +208,9 @@ SET cantidad_salas    = (SELECT count(*)
                            AND a.id_oficina IN (SELECT id_oficina
                                                 FROM gr01_oficina
                                                 WHERE tipo_o = 'R'));
-/*
+/*--------------------------------------------------------------------------------------------------------------------
  Al añadir o modificar datos (alquila), las columnas se mantendran actualizadas por la siguiente funcion de trigger
-*/
+  --------------------------------------------------------------------------------------------------------------------*/
 CREATE OR REPLACE FUNCTION TRFN_GR01_OFICINAS_CLIENTE()
     RETURNS TRIGGER AS
 $$
@@ -258,13 +242,11 @@ BEGIN
                   AND a.id_oficina IN (SELECT id_oficina
                                        FROM gr01_oficina
                                        WHERE tipo_o = 'R');
-
                 UPDATE gr01_cliente
                 SET cantidad_oficinas = cantidad_oficinas + cant_oficinas_encontradas,
                     cantidad_salas    = cantidad_salas + cant_salas_encontradas
                 WHERE tipo_doc = cliente_alquila.tipo_doc
                   AND nro_doc = cliente_alquila.nro_doc;
-
             END LOOP;
     END IF;
 
@@ -290,13 +272,11 @@ BEGIN
                   AND a.id_oficina IN (SELECT id_oficina
                                        FROM gr01_oficina
                                        WHERE tipo_o = 'R');
-
                 UPDATE gr01_cliente
                 SET cantidad_oficinas = cantidad_oficinas - cant_oficinas_encontradas,
                     cantidad_salas    = cantidad_salas - cant_salas_encontradas
                 WHERE tipo_doc = cliente_alquila.tipo_doc
                   AND nro_doc = cliente_alquila.nro_doc;
-
             END LOOP;
     END IF;
     RETURN NULL;
@@ -304,7 +284,8 @@ END
 $$
     LANGUAGE 'plpgsql';
 
---TR_<GRXX>_<tbl>_<nnnn>
+/*========== TRIGGERS ==========*/
+
 CREATE TRIGGER TR_GR01_ALQUILA_INS
     AFTER INSERT
     ON GR01_ALQUILA
@@ -326,9 +307,9 @@ CREATE TRIGGER TR_GR01_ALQUILA_UPD
     FOR EACH STATEMENT
 EXECUTE PROCEDURE TRFN_GR01_OFICINAS_CLIENTE();
 
-/*
+/*----------------------------------------------------------------------------------------------------------------------
  Al añadir datos (cliente) las columnas se inicilizaran en 0.
-*/
+----------------------------------------------------------------------------------------------------------------------*/
 
 CREATE OR REPLACE FUNCTION TRFN_GR01_CLIENTE()
     RETURNS TRIGGER AS
@@ -344,6 +325,9 @@ END
 $$
     LANGUAGE 'plpgsql';
 
+
+/*========== TRIGGER ==========*/
+
 CREATE TRIGGER TR_GR01_CLIENTE_INS
     AFTER INSERT
     ON GR01_CLIENTE
@@ -351,8 +335,8 @@ CREATE TRIGGER TR_GR01_CLIENTE_INS
     FOR EACH STATEMENT
 EXECUTE PROCEDURE TRFN_GR01_CLIENTE();
 
-/*
-  Consultas para comprobar actualizacion automática.
+/*----------------------------------------------------------------------------------------------------------------------
+                                    Consultas para comprobar actualizacion automática.
 
 INSERT INTO GR01_ALQUILA (tipo_doc, nro_doc, id_oficina, fecha_desde)
 VALUES ('RUC', 37425539, 8, '7/28/2018'),
@@ -381,33 +365,27 @@ VALUES ('DNI', 11223344, 8, '7/28/2018'),
 
    --eliminar todos los alquileres a un cliente.
  DELETE FROM GR01_ALQUILA WHERE nro_doc = 40571911 AND tipo_doc = 'DNI';
-*/
+----------------------------------------------------------------------------------------------------------------------*/
 
+--///////////////////////////////////////////// Ejercicio 2 ////////////////////////////////////////////////////////////
 
-
-/**==================================================================================================================*/
---                                                  Ejercicio 2
-/**==================================================================================================================*/
-
-/*
+/*----------------------------------------------------------------------------------------------------------------------
   Utilizando 2 vistas V_OFICINA_REGULAR y V_SALA_CONVENCION que contienen todos los datos de las oficinas regulares o
 de las salas de convención respectivamente, construir los triggers INSTEAD OF necesarios para mantener actualizadas
 las tablas de OFICINA, OFICINA_REG y SALA_CONVENSION de manera de respetar el diseño de datos de la jerarquía.
-*/
+----------------------------------------------------------------------------------------------------------------------*/
+
 --**************************************** CREACION DE VISTAS ***************************************************
 
 CREATE VIEW GR01_V_OFICINA_REGULAR AS
 SELECT r.id_oficina, o.superficie, o.cant_max_personas, o.monto_alquiler, r.cant_escritorios, r.cant_pc
-FROM GR01_OFICINA o
-         NATURAL JOIN GR01_OFICINA_REG r;
-/*
-SELECT * FROM GR01_V_OFICINA_REGULAR;
-*/
+FROM GR01_OFICINA o NATURAL JOIN GR01_OFICINA_REG r;
 
 CREATE VIEW GR01_V_SALA_CONVENCION AS
 SELECT s.id_oficina, o.superficie, o.cant_max_personas, o.monto_alquiler, s.cant_pantallas, s.cant_sillas
-FROM GR01_OFICINA o
-         NATURAL JOIN GR01_SALA_CONVENCION s;
+FROM GR01_OFICINA o NATURAL JOIN GR01_SALA_CONVENCION s;
+
+-- Las vistas NO son actualizables a menos que se utilizen triggers INSTEAD OF
 
 --************************************* CREACION DE TRIGGERS INSTEAD OF ******************************************
 
@@ -415,28 +393,21 @@ CREATE OR REPLACE FUNCTION TRFN_GR01_V_OFICINA_REGULAR()
     RETURNS TRIGGER AS
 $$
 BEGIN
-    IF (TG_OP = 'UPDATE') THEN
+    IF (TG_OP = 'UPDATE') THEN ---------------------------------------------------------------------------------------
         UPDATE GR01_OFICINA
-        SET superficie        = NEW.superficie,
-            cant_max_personas = NEW.cant_max_personas,
-            monto_alquiler    = NEW.monto_alquiler
-        WHERE id_oficina = NEW.id_oficina;
-        UPDATE GR01_OFICINA_REG
-        SET cant_escritorios = NEW.cant_escritorios,
-            cant_pc          = NEW.cant_pc
-        WHERE id_oficina = NEW.id_oficina;
-    END IF;
+        SET superficie = NEW.superficie,cant_max_personas = NEW.cant_max_personas, monto_alquiler = NEW.monto_alquiler
+            WHERE id_oficina = NEW.id_oficina;
+        UPDATE GR01_OFICINA_REG SET cant_escritorios = NEW.cant_escritorios, cant_pc = NEW.cant_pc
+            WHERE id_oficina = NEW.id_oficina;
 
-    IF (TG_OP = 'INSERT') THEN
-
+    ELSIF (TG_OP = 'INSERT') THEN ------------------------------------------------------------------------------------
         INSERT INTO GR01_OFICINA (ID_OFICINA, SUPERFICIE, CANT_MAX_PERSONAS, MONTO_ALQUILER, TIPO_O)
         VALUES (NEW.id_oficina, NEW.superficie, NEW.cant_max_personas, NEW.monto_alquiler, 'R');
 
         INSERT INTO gr01_oficina_reg (id_oficina, cant_escritorios, cant_pc)
         VALUES (NEW.id_oficina, NEW.cant_escritorios, NEW.cant_pc);
-    END IF;
 
-    IF (TG_OP = 'DELETE') THEN
+    ELSE -------------------------------------------------------------------------------------------------------------
         DELETE FROM gr01_oficina WHERE id_oficina = old.id_oficina;
     END IF;
     RETURN NULL;
@@ -448,7 +419,7 @@ CREATE OR REPLACE FUNCTION TRFN_GR01_V_SALA_CONVENCION()
     RETURNS TRIGGER AS
 $$
 BEGIN
-    IF (TG_OP = 'UPDATE') THEN
+    IF (TG_OP = 'UPDATE') THEN -----------------------------------------------------------------------------------------
         UPDATE GR01_OFICINA
         SET superficie        = NEW.superficie,
             cant_max_personas = NEW.cant_max_personas,
@@ -458,21 +429,20 @@ BEGIN
         SET cant_sillas    = NEW.cant_sillas,
             cant_pantallas = NEW.cant_pantallas
         WHERE id_oficina = NEW.id_oficina;
-    END IF;
-    IF (tg_op = 'INSERT') THEN
+    ELSIF (TG_OP = 'INSERT') THEN --------------------------------------------------------------------------------------
         INSERT INTO GR01_OFICINA (id_oficina, superficie, cant_max_personas, monto_alquiler, tipo_o)
-        VALUES (NEW.id_oficina, new.superficie, new.cant_max_personas, new.monto_alquiler, 'C');
+        VALUES (NEW.id_oficina, NEW.superficie, NEW.cant_max_personas, NEW.monto_alquiler, 'C');
         INSERT INTO GR01_SALA_CONVENCION (id_oficina, cant_pantallas, cant_sillas)
         VALUES (NEW.id_oficina, NEW.cant_pantallas, NEW.cant_sillas);
-    END IF;
-
-    IF (TG_OP = 'DELETE') THEN
-        DELETE FROM gr01_oficina WHERE id_oficina = old.id_oficina;
+    ELSE ---------------------------------------------------------------------------------------------------------------
+        DELETE FROM GR01_OFICINA WHERE id_oficina = old.id_oficina;
     END IF;
     RETURN NULL;
 END;
 $$
     LANGUAGE 'plpgsql';
+
+/*========== TRIGGERS ==========*/
 
 CREATE TRIGGER TR_GR01_V_SALA_CONVENCION
     INSTEAD OF INSERT OR UPDATE OR DELETE
@@ -487,35 +457,39 @@ CREATE TRIGGER TR_GR01_V_OFICINA_REGULAR
 EXECUTE PROCEDURE TRFN_GR01_V_OFICINA_REGULAR();
 
 
-/*
-  Consultas de comprobación:
+/*----------------------------------------------------------------------------------------------------------------------
+                                                Consultas de comprobación:
+-- SELECT DE VISTAS.
+SELECT * FROM GR01_V_OFICINA_REGULAR;
+SELECT * FROM GR01_V_SALA_CONVENCION;
 
-select *
-from GR01_V_OFICINA_REGULAR;
-
-select *
-from GR01_V_SALA_CONVENCION;
-
-DELETE FROM GR01_V_OFICINA_REGULAR WHERE id_oficina = 1;
-
-
-INSERT INTO gr01_v_oficina_regular (id_oficina, superficie, cant_max_personas, monto_alquiler, cant_escritorios,
-                                    cant_pc)
+-- INGRESAR DATOS DESDE VISTA
+INSERT INTO GR01_V_OFICINA_REGULAR (id_oficina, superficie, cant_max_personas, monto_alquiler, cant_escritorios,cant_pc)
 VALUES (600, 93, 8, 55.54, 2, 2);
-*/
+INSERT INTO GR01_V_SALA_CONVENCION (id_oficina, superficie,cant_max_personas,monto_alquiler,cant_pantallas,cant_sillas)
+VALUES (80, 100, 10, 104.50, 40, 200);
+
+-- ACTUALIZAR DATOS DE VISTA
+  UPDATE GR01_V_OFICINA_REGULAR SET superficie = 800,cant_escritorios = 18,cant_pc = 16 WHERE id_oficina = 600;
+  UPDATE GR01_V_SALA_CONVENCION SET superficie = 800,cant_sillas = 500,cant_pantallas = 20 WHERE id_oficina = 80;
+
+-- ELIMINAR DATOS DESDE VISTA
+DELETE FROM GR01_V_OFICINA_REGULAR WHERE id_oficina = 600;
+DELETE FROM GR01_V_SALA_CONVENCION WHERE id_oficina = 80;
+
+  SELECT * FROM GR01_OFICINA;
+  */
 
 /**==================================================================================================================*/
---                                              B.VISTAS
+--                                                      B.VISTAS
 /**==================================================================================================================*/
 
+--//////////////////////////////////////////////////// Ejercicio 1 ////////////////////////////////////////////////////
 
-/**==================================================================================================================*/
---                                              Ejercicio 1
-/**==================================================================================================================*/
-
-/*
+/*---------------------------------------------------------------------------------------------------------------------
   Construya una vista V_CLIENTES_COMP que contenga las oficinas que han sido alquiladas por todos los clientes.
-*/
+  -------------------------------------------------------------------------------------------------------------------*/
+
 CREATE VIEW GR01_V_CLIENTE_COMP AS
 SELECT *
 FROM GR01_OFICINA AS of
@@ -526,10 +500,11 @@ WHERE NOT EXISTS(SELECT 1
                                   WHERE aq.id_oficina = of.id_oficina
                                     AND aq.nro_doc = cl.nro_doc
                                     AND aq.tipo_doc = cl.tipo_doc));
-/*
+
+/* --------------------------------------------------------------------------------------------------------------------
 La vista es actualizable porque tiene la primary key y no presenta ensambles ni funciones de grupo.
 
-Consultas de comprobacion:
+                                       Consultas de comprobacion:
 
 SELECT *
 FROM GR01_V_CLIENTE_COMP;
@@ -541,18 +516,16 @@ GROUP BY id_oficina;
 SELECT count(*)       --cantidad de clientes
 FROM gr01_cliente;
 
-*/
+  -------------------------------------------------------------------------------------------------------------------*/
 
-/**==================================================================================================================*/
---                                              Ejercicio 2
-/**==================================================================================================================*/
-/*
+--/////////////////////////////////////////////////// Ejercicio 2 /////////////////////////////////////////////////////
+
+/* --------------------------------------------------------------------------------------------------------------------
  Construya una vista V_OFICINAS_REG que liste para cada oficina:
 su identificador, su tipo, su superficie, su monto de alquiler y la cantidad promedio de escritorios por superficie.
-*/
+  -------------------------------------------------------------------------------------------------------------------*/
 
-
-/*
+/*--------------------------------------------------------------------------------------------------------------------
 Aclaración: estos fueron las primeras ideas para obtener los datos necesarios.
 
 --ESTO ME TRAE EL PROMEDIO:
@@ -566,10 +539,10 @@ SELECT o.id_oficina,  monto_alquiler, tipo_o, superficie, AVG(cant_escritorios)
 FROM gr01_oficina o
 JOIN gr01_oficina_reg r ON r.id_oficina = o.id_oficina
 GROUP BY superficie, o.id_oficina;
-*/
+---------------------------------------------------------------------------------------------------------------------*/
 
-/*
-                                        SOLUCION FINAL:
+/*--------------------------------------------------------------------------------------------------------------------
+                                                SOLUCION FINAL:
 
 Se crea primero la vista GR01_V_PROMEDIO para poder obtener el promedio de escritos por superficie.
 No es posible hacer esta vista actualizable porque es necesario proyectar atributos de las dos tablas involucradas y
@@ -580,7 +553,7 @@ gr01_oficina y se hace un join para traer los resultados de la vista GR01_V_PROM
 
 La vista resultante no es actualizable, porque es necesario proyectar atributos de la tabla gr01_oficina y de la vista
 GR01_V_PROMEDIO que, a su vez y como vimos anteriormente, no es actualizable.
-*/
+  --------------------------------------------------------------------------------------------------------------------*/
 
 CREATE VIEW GR01_V_PROMEDIO AS
 SELECT superficie, AVG(cant_escritorios) as promedio
@@ -592,9 +565,12 @@ CREATE VIEW GR01_V_OFICINAS_REG AS
 SELECT id_oficina, monto_alquiler, tipo_o, v.superficie, v.promedio
 FROM gr01_oficina o
          JOIN GR01_V_PROMEDIO v ON v.superficie = o.superficie;
-/*
+
+/*---------------------------------------------------------------------------------------------------------------------
 Consulta de comprobacion:
 
 SELECT *
 FROM GR01_V_OFICINAS_REG;
-*/
+
+  Ambas Vistas no son actualizables porque presentan un ensamble de 2 tablas
+---------------------------------------------------------------------------------------------------------------------*/

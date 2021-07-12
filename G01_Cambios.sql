@@ -2,9 +2,9 @@
 --║ INDICE                        ║
 --║ - LINEA: 11 INSERTS           ║
 --║ - LINEA: 181 PUNTO A EJER 1   ║
---║ - LINEA: 379 PUNTO A EJER 2   ║
---║ - LINEA: 497 PUNTO B EJER 1   ║
---║ - LINEA: 532 PUNTO B EJER 2   ║
+--║ - LINEA: 387 PUNTO A EJER 2   ║
+--║ - LINEA: 505 PUNTO B EJER 1   ║
+--║ - LINEA: 540 PUNTO B EJER 2   ║
 --╚═══════════════════════════════╝
 
 --╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗

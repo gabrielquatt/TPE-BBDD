@@ -374,6 +374,14 @@ VALUES ('DNI', 11223344, 8, '7/28/2018'),
 
    --eliminar todos los alquileres a un cliente.
  DELETE FROM GR01_ALQUILA WHERE nro_doc = 40571911 AND tipo_doc = 'DNI';
+
+-- editar dos alquileres del mismo cliente (se le restan dos salas y se le suman dos oficinas)
+UPDATE GR01_alquila a SET id_oficina = c.id_new
+  FROM (VALUES (11,10),
+               (5, 9)
+  ) AS c(id_new, id_old)
+  WHERE a.id_oficina = c.id_old AND nro_doc = 284498096 AND tipo_doc = 'DNI';
+
 ----------------------------------------------------------------------------------------------------------------------*/
 --┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 --│///////////////////////////////////////////// Ejercicio 2 //////////////////////////////////////////////////////////│

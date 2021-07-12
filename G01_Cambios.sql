@@ -2,8 +2,8 @@
 --║ INDICE                        ║
 --║ - LINEA: 11 INSERTS           ║
 --║ - LINEA: 181 PUNTO A EJER 1   ║
---║ - LINEA: 379 PUNTO B EJER 2   ║
---║ - LINEA: 497 PUNTO A EJER 1   ║
+--║ - LINEA: 379 PUNTO A EJER 2   ║
+--║ - LINEA: 497 PUNTO B EJER 1   ║
 --║ - LINEA: 532 PUNTO B EJER 2   ║
 --╚═══════════════════════════════╝
 
@@ -545,7 +545,7 @@ FROM gr01_oficina o
 JOIN gr01_oficina_reg r ON r.id_oficina = o.id_oficina
 GROUP BY superficie;
 
---SI AGREGO LOS OTROS CAMPOS LOS TENGO QUE INCLUIR E EL GROUP BY Y YA NO CALCULA EL PROMEDIO:
+--SI AGREGO LOS OTROS CAMPOS LOS TENGO QUE INCLUIR EN EL GROUP BY Y YA NO CALCULA EL PROMEDIO:
 SELECT o.id_oficina,  monto_alquiler, tipo_o, superficie, AVG(cant_escritorios)
 FROM gr01_oficina o
 JOIN gr01_oficina_reg r ON r.id_oficina = o.id_oficina
@@ -562,8 +562,7 @@ utilizar funciones de agrupamiento.
 Luego se crea la vista GR01_V_OFICINAS_REG, solicitada en el ejercicio, en la que se proyectan los atributos de la tabla
 gr01_oficina y se hace un join para traer los resultados de la vista GR01_V_PROMEDIO.
 
-La vista resultante no es actualizable, porque es necesario proyectar atributos de la tabla gr01_oficina y de la vista
-GR01_V_PROMEDIO que, a su vez y como vimos anteriormente, no es actualizable.
+
   --------------------------------------------------------------------------------------------------------------------*/
 
 CREATE VIEW GR01_V_PROMEDIO AS
@@ -583,5 +582,6 @@ Consulta de comprobacion:
 SELECT *
 FROM GR01_V_OFICINAS_REG;
 
-  Ambas Vistas no son actualizables porque presentan un ensamble de 2 tablas
+La vista resultante no es actualizable, porque es necesario proyectar atributos de la tabla gr01_oficina y de la vista
+GR01_V_PROMEDIO que, a su vez y como vimos anteriormente, no es actualizable.
 ---------------------------------------------------------------------------------------------------------------------*/

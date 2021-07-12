@@ -8,6 +8,7 @@ DROP FUNCTION IF EXISTS TRFN_GR01_V_OFICINA_REGULAR() CASCADE;
 
 DROP FUNCTION IF EXISTS TRFN_GR01_V_SALA_CONVENCION() CASCADE;
 
+DROP FUNCTION IF EXISTS TRFN_GR01_CLIENTE() CASCADE;
 
 /**==================================================================================================================*/
 --                                              DROP VIEWS
